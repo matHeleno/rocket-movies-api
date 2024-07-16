@@ -24,10 +24,10 @@ class UserController {
 
   async update(request, response) {
     const { name, email, password, old_password } = request.body
-    const { id } = request.params
+    const user_id = request.user.id
 
     const database = await sqliteConnection()
-    const user = await database.get('select * from users where id = (?)', [id])
+    const user = await database.get('select * from users where id = (?)', [user_id])
 
     if (!user) {
       throw new AppError("Usuário não encontrado.")
@@ -56,16 +56,16 @@ class UserController {
       user.password = await hash(password, 8)
     }
 
-    await database.run('update users set name = ?, email = ?, password = ?, updated_at = datetime("now") where id = ?', [user.name, user.email, user.password, id])
+    await database.run('update users set name = ?, email = ?, password = ?, updated_at = datetime("now") where id = ?', [user.name, user.email, user.password, user_id])
 
     return response.status(200).json()
   }
 
   async show(request, response) {
-    const {id} = request.params
+    const user_id = request.user.id
 
     const user = await knex("users")
-      .where({id})
+      .where(user_id)
       .select("name", "email", "created_at")
       .first()
 
