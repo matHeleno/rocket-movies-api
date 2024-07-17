@@ -65,7 +65,7 @@ class UserController {
     const user_id = request.user.id
 
     const user = await knex("users")
-      .where(user_id)
+      .where('id', user_id)
       .select("name", "email", "created_at")
       .first()
 
